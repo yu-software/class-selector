@@ -3,11 +3,11 @@
  * Stores generated semester-by-semester plans for students
  */
 
-import { BaseModel } from './BaseModel.js';
+import { BaseModel } from "./BaseModel.js";
 
 export class AcademicPlan extends BaseModel {
   static get tableName() {
-    return 'academic_plans';
+    return "academic_plans";
   }
 
   /**
@@ -21,8 +21,8 @@ export class AcademicPlan extends BaseModel {
       course_id: data.courseId,
       planned_semester: data.plannedSemester,
       planned_year: data.plannedYear,
-      status: 'planned',
-      notes: data.notes ?? null
+      status: "planned",
+      notes: data.notes ?? null,
     });
   }
 
@@ -38,13 +38,28 @@ export class AcademicPlan extends BaseModel {
 
     db.transaction(() => {
       for (const course of courses) {
+        const exists = this.exists(
+          "student_id = ? AND course_id = ? AND planned_semester = ? AND planned_year = ?",
+          [
+            studentId,
+            course.courseId,
+            course.plannedSemester,
+            course.plannedYear,
+          ],
+        );
+
+        if (exists) {
+          // Skip duplicate plan entries instead of throwing UNIQUE constraint
+          continue;
+        }
+
         const plan = this.insert({
           student_id: studentId,
           course_id: course.courseId,
           planned_semester: course.plannedSemester,
           planned_year: course.plannedYear,
-          status: 'planned',
-          notes: course.notes ?? null
+          status: "planned",
+          notes: course.notes ?? null,
         });
         created.push(plan);
       }
@@ -78,14 +93,25 @@ export class AcademicPlan extends BaseModel {
    * @returns {Object|null} Updated record or null
    */
   static updatePlan(id, data) {
-    const allowedFields = ['planned_semester', 'planned_year', 'status', 'notes'];
+    const allowedFields = [
+      "planned_semester",
+      "planned_year",
+      "status",
+      "notes",
+    ];
     const filteredData = {};
 
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
-        filteredData[field === 'planned_semester' ? 'planned_semester' :
-                       field === 'planned_year' ? 'planned_year' :
-                       field === 'status' ? 'status' : 'notes'] = data[field];
+        filteredData[
+          field === "planned_semester"
+            ? "planned_semester"
+            : field === "planned_year"
+              ? "planned_year"
+              : field === "status"
+                ? "status"
+                : "notes"
+        ] = data[field];
       }
     }
 
@@ -99,13 +125,17 @@ export class AcademicPlan extends BaseModel {
    */
   static getStudentPlan(studentId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT ap.*, c.course_code, c.course_name, c.credit_hours
       FROM academic_plans ap
       JOIN courses c ON ap.course_id = c.id
       WHERE ap.student_id = ?
       ORDER BY ap.planned_year, ap.planned_semester, c.course_code
-    `).all(studentId);
+    `,
+      )
+      .all(studentId);
   }
 
   /**
@@ -123,7 +153,7 @@ export class AcademicPlan extends BaseModel {
           semester: plan.planned_semester,
           year: plan.planned_year,
           courses: [],
-          totalCredits: 0
+          totalCredits: 0,
         };
       }
       acc[key].courses.push({
@@ -133,7 +163,7 @@ export class AcademicPlan extends BaseModel {
         name: plan.course_name,
         creditHours: plan.credit_hours,
         status: plan.status,
-        notes: plan.notes
+        notes: plan.notes,
       });
       acc[key].totalCredits += plan.credit_hours;
       return acc;
@@ -149,7 +179,9 @@ export class AcademicPlan extends BaseModel {
    */
   static getCoursesForSemester(studentId, semester, year) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT ap.*, c.course_code, c.course_name, c.credit_hours
       FROM academic_plans ap
       JOIN courses c ON ap.course_id = c.id
@@ -157,7 +189,9 @@ export class AcademicPlan extends BaseModel {
         AND ap.planned_semester = ?
         AND ap.planned_year = ?
       ORDER BY c.course_code
-    `).all(studentId, semester, year);
+    `,
+      )
+      .all(studentId, semester, year);
   }
 
   /**
@@ -167,12 +201,16 @@ export class AcademicPlan extends BaseModel {
    */
   static getTotalPlannedCredits(studentId) {
     const db = this.db;
-    const result = db.prepare(`
+    const result = db
+      .prepare(
+        `
       SELECT SUM(c.credit_hours) as total
       FROM academic_plans ap
       JOIN courses c ON ap.course_id = c.id
       WHERE ap.student_id = ?
-    `).get(studentId);
+    `,
+      )
+      .get(studentId);
 
     return result?.total || 0;
   }
@@ -185,8 +223,8 @@ export class AcademicPlan extends BaseModel {
    */
   static isCoursePlanned(studentId, courseId) {
     return this.exists(
-      'student_id = ? AND course_id = ? AND status = \'planned\'',
-      [studentId, courseId]
+      "student_id = ? AND course_id = ? AND status = 'planned'",
+      [studentId, courseId],
     );
   }
 
@@ -197,10 +235,13 @@ export class AcademicPlan extends BaseModel {
    * @returns {Object|null} Updated record or null
    */
   static markAsCompleted(studentId, courseId) {
-    const plan = this.findOne('student_id = ? AND course_id = ? AND status = \'planned\'', [studentId, courseId]);
+    const plan = this.findOne(
+      "student_id = ? AND course_id = ? AND status = 'planned'",
+      [studentId, courseId],
+    );
     if (!plan) return null;
 
-    return this.update(plan.id, { status: 'completed' });
+    return this.update(plan.id, { status: "completed" });
   }
 
   /**
@@ -210,12 +251,16 @@ export class AcademicPlan extends BaseModel {
    */
   static getPlannedSemesters(studentId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT DISTINCT planned_semester as semester, planned_year as year
       FROM academic_plans
       WHERE student_id = ?
       ORDER BY planned_year, planned_semester
-    `).all(studentId);
+    `,
+      )
+      .all(studentId);
   }
 
   /**
@@ -227,11 +272,12 @@ export class AcademicPlan extends BaseModel {
    */
   static clearPlan(studentId, semester = null, year = null) {
     const db = this.db;
-    let sql = 'DELETE FROM academic_plans WHERE student_id = ? AND status = \'planned\'';
+    let sql =
+      "DELETE FROM academic_plans WHERE student_id = ? AND status = 'planned'";
     const params = [studentId];
 
     if (semester && year) {
-      sql += ' AND planned_semester = ? AND planned_year = ?';
+      sql += " AND planned_semester = ? AND planned_year = ?";
       params.push(semester, year);
     }
 
@@ -258,13 +304,12 @@ export class AcademicPlan extends BaseModel {
    */
   static copyPlan(studentId, yearOffset = 0) {
     const existing = this.getStudentPlan(studentId);
-    const newPlans = [];
 
-    const courses = existing.map(plan => ({
+    const courses = existing.map((plan) => ({
       courseId: plan.course_id,
       plannedSemester: plan.planned_semester,
       plannedYear: plan.planned_year + yearOffset,
-      notes: plan.notes
+      notes: plan.notes,
     }));
 
     return this.addMultipleCourses(studentId, courses);

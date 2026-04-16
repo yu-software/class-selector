@@ -3,12 +3,12 @@
  * Manages SQLite database connection for the Class Selector System
  */
 
-import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import Database from "better-sqlite3";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = path.join(__dirname, '..', 'class_selector.db');
+const DB_PATH = path.join(__dirname, "..", "class_selector.db");
 
 let dbInstance = null;
 
@@ -20,9 +20,9 @@ export function getDatabase() {
   if (!dbInstance) {
     dbInstance = new Database(DB_PATH);
     // Enable foreign keys
-    dbInstance.pragma('foreign_keys = ON');
+    dbInstance.pragma("foreign_keys = ON");
     // Enable WAL mode for better concurrency
-    dbInstance.pragma('journal_mode = WAL');
+    dbInstance.pragma("journal_mode = WAL");
   }
   return dbInstance;
 }
@@ -44,7 +44,7 @@ export function initializeDatabase() {
   const db = getDatabase();
 
   // Enable foreign keys
-  db.pragma('foreign_keys = ON');
+  db.pragma("foreign_keys = ON");
 
   // Create tables in order (respecting foreign key dependencies)
   createUsersTable(db);
@@ -75,7 +75,9 @@ function createUsersTable(db) {
   // Index for login lookups
   db.exec(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
   // Index for major lookups
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_users_major ON users(declared_major)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_users_major ON users(declared_major)`,
+  );
 }
 
 function createCoursesTable(db) {
@@ -120,10 +122,18 @@ function createCoursesTable(db) {
   `);
 
   // Indexes for performance
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_courses_code ON courses(course_code)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_course_availability ON course_availability(course_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_course_prerequisites ON course_prerequisites(course_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_prereq_course ON course_prerequisites(prerequisite_course_id)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_courses_code ON courses(course_code)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_course_availability ON course_availability(course_id)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_course_prerequisites ON course_prerequisites(course_id)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_prereq_course ON course_prerequisites(prerequisite_course_id)`,
+  );
 }
 
 function createDegreeRequirementsTable(db) {
@@ -143,9 +153,15 @@ function createDegreeRequirementsTable(db) {
   `);
 
   // Indexes for major lookups
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_degree_major ON degree_requirements(major)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_degree_catalog ON degree_requirements(catalog_year)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_degree_course ON degree_requirements(course_id)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_degree_major ON degree_requirements(major)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_degree_catalog ON degree_requirements(catalog_year)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_degree_course ON degree_requirements(course_id)`,
+  );
 }
 
 function createCourseHistoryTable(db) {
@@ -168,9 +184,15 @@ function createCourseHistoryTable(db) {
   `);
 
   // Indexes for student history lookups
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_history_student ON course_history(student_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_history_course ON course_history(course_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_history_status ON course_history(status)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_history_student ON course_history(student_id)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_history_course ON course_history(course_id)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_history_status ON course_history(status)`,
+  );
 }
 
 function createAcademicPlansTable(db) {
@@ -192,9 +214,15 @@ function createAcademicPlansTable(db) {
   `);
 
   // Indexes for plan lookups
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_plan_student ON academic_plans(student_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_plan_course ON academic_plans(course_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_plan_semester ON academic_plans(planned_semester, planned_year)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_plan_student ON academic_plans(student_id)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_plan_course ON academic_plans(course_id)`,
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_plan_semester ON academic_plans(planned_semester, planned_year)`,
+  );
 }
 
 export {
@@ -202,5 +230,5 @@ export {
   createCoursesTable,
   createDegreeRequirementsTable,
   createCourseHistoryTable,
-  createAcademicPlansTable
+  createAcademicPlansTable,
 };

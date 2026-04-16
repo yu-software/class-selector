@@ -8,8 +8,13 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "npm run lint && npm run build && cross-env MINIMAL_INIT=1 npm run db:init",
     "db:init": "node db/init-db.js",
-    "db:reset": "node -e \"import('./db/index.js').then(m => m.resetDatabase())\""
+    "db:reset": "node -e \"if(process.env.ALLOW_DB_RESET==='1'){ import('./db/index.js').then(m => m.resetDatabase()) } else { console.error('Refusing to run db:reset. Set ALLOW_DB_RESET=1 to allow this operation.'); process.exit(1) }\"",
+    "db:migrate": "node db/migrations/run.js",
+    "db:reset:dev": "cross-env ALLOW_DB_RESET=1 npm run db:reset",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -19,6 +24,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "prettier": "^3.2.5",
+    "cross-env": "^7.0.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

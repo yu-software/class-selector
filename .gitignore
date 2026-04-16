@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ignore catalog PDF
+2023-2024-catalog.pdf
+
+# Ignore migration agent files
+.agent.md
+.agent*
+ 
+# Ignore catalog PDF in db/ if stored there
+db/2023-2024-catalog.pdf
+
+# Ignore local SQLite database files and DB Browser project
+class_selector.db
+class_selector.db-wal
+class_selector.db-shm
+class_selector.sqbpro

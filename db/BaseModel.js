@@ -3,7 +3,7 @@
  * Provides common CRUD operations and utilities for all models
  */
 
-import { getDatabase } from './database.js';
+import { getDatabase } from "./database.js";
 
 export class BaseModel {
   /**
@@ -11,7 +11,7 @@ export class BaseModel {
    * @type {string}
    */
   static get tableName() {
-    throw new Error('Subclasses must define tableName');
+    throw new Error("Subclasses must define tableName");
   }
 
   /**
@@ -28,7 +28,9 @@ export class BaseModel {
    * @returns {Object|null} Record or null if not found
    */
   static findById(id) {
-    const stmt = this.db.prepare(`SELECT * FROM ${this.tableName} WHERE id = ?`);
+    const stmt = this.db.prepare(
+      `SELECT * FROM ${this.tableName} WHERE id = ?`,
+    );
     return stmt.get(id) || null;
   }
 
@@ -38,7 +40,7 @@ export class BaseModel {
    * @param {Array} params - Parameters for WHERE clause
    * @returns {Array} Array of records
    */
-  static findAll(where = '', params = []) {
+  static findAll(where = "", params = []) {
     let sql = `SELECT * FROM ${this.tableName}`;
     if (where) {
       sql += ` WHERE ${where}`;
@@ -66,11 +68,11 @@ export class BaseModel {
    */
   static insert(data) {
     const columns = Object.keys(data);
-    const placeholders = columns.map(() => '?').join(', ');
-    const values = columns.map(col => data[col]);
+    const placeholders = columns.map(() => "?").join(", ");
+    const values = columns.map((col) => data[col]);
 
     const stmt = this.db.prepare(`
-      INSERT INTO ${this.tableName} (${columns.join(', ')})
+      INSERT INTO ${this.tableName} (${columns.join(", ")})
       VALUES (${placeholders})
     `);
 
@@ -86,8 +88,8 @@ export class BaseModel {
    */
   static update(id, data) {
     const columns = Object.keys(data);
-    const setClause = columns.map(col => `${col} = ?`).join(', ');
-    const values = [...columns.map(col => data[col]), id];
+    const setClause = columns.map((col) => `${col} = ?`).join(", ");
+    const values = [...columns.map((col) => data[col]), id];
 
     const stmt = this.db.prepare(`
       UPDATE ${this.tableName}
@@ -128,7 +130,7 @@ export class BaseModel {
    * @param {Array} params - Parameters for WHERE clause
    * @returns {number} Count of records
    */
-  static count(where = '', params = []) {
+  static count(where = "", params = []) {
     let sql = `SELECT COUNT(*) as count FROM ${this.tableName}`;
     if (where) {
       sql += ` WHERE ${where}`;
@@ -146,12 +148,12 @@ export class BaseModel {
   static transaction(callback) {
     const db = this.db;
     try {
-      db.exec('BEGIN TRANSACTION');
+      db.exec("BEGIN TRANSACTION");
       const result = callback();
-      db.exec('COMMIT');
+      db.exec("COMMIT");
       return result;
     } catch (error) {
-      db.exec('ROLLBACK');
+      db.exec("ROLLBACK");
       throw error;
     }
   }

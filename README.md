@@ -1,11 +1,68 @@
 # class-selector
 
+## Database Migration
+
+To run all database migrations, use:
+
+```
+npm run db:migrate
+```
+
+This will execute all migration scripts in `db/migrations/` (via `run.js`). Use this command whenever you make changes to the database schema or need to apply new migrations.
+
+## Code Formatting
+
+To check code formatting using Prettier:
+
+```
+npm run format:check
+```
+
+To automatically fix formatting issues:
+
+```
+npm run format
+```
+
+Formatting is enforced in CI. Pull requests will fail if code is not properly formatted.
+
+## Running Tests
+
+To run all automated tests:
+
+```
+npm test
+```
+
+Tests are also run automatically in CI for every pull request and push to main/develop. Failing tests will block merging.
+
+## Dangerous Scripts
+
+The project includes a `db:reset` script that will reset or erase the database. For security, this script is restricted and will only run when the environment variable `ALLOW_DB_RESET` is explicitly set to `1`.
+
+To run a reset locally (explicit consent required):
+
+```
+ALLOW_DB_RESET=1 npm run db:reset
+```
+
+Do NOT set this environment variable in CI or production environments. Use this only for local development and testing.
+
 ## Setup
 
 1.  Install Node.js
 2.  Clone the repository
 3.  Install npm (npm install)
 4.  npm run dev to run the project in local browser
+
+## Windows note
+
+If you or your teammates use Windows, install `cross-env` (already included in devDependencies) so environment variables work the same across platforms. Example commands:
+
+```
+npx cross-env MINIMAL_INIT=1 npm run db:init
+npx cross-env ALLOW_DB_RESET=1 npm run db:reset
+```
 
 # React + Vite
 

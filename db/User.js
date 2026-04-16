@@ -3,12 +3,12 @@
  * Manages student/user profiles with authentication
  */
 
-import { BaseModel } from './BaseModel.js';
-import bcrypt from 'bcrypt';
+import { BaseModel } from "./BaseModel.js";
+import bcrypt from "bcrypt";
 
 export class User extends BaseModel {
   static get tableName() {
-    return 'users';
+    return "users";
   }
 
   /**
@@ -22,7 +22,7 @@ export class User extends BaseModel {
 
     const user = this.insert({
       ...userData,
-      password_hash: passwordHash
+      password_hash: passwordHash,
     });
 
     return this.#sanitizeUser(user);
@@ -34,7 +34,7 @@ export class User extends BaseModel {
    * @returns {Object|null} User or null
    */
   static findByEmail(email) {
-    return this.findOne('email = ?', [email]);
+    return this.findOne("email = ?", [email]);
   }
 
   /**
@@ -81,11 +81,15 @@ export class User extends BaseModel {
    */
   static getCompletedCourses(userId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT c.* FROM courses c
       JOIN course_history ch ON c.id = ch.course_id
       WHERE ch.student_id = ? AND ch.status = 'completed'
-    `).all(userId);
+    `,
+      )
+      .all(userId);
   }
 
   /**
@@ -95,13 +99,17 @@ export class User extends BaseModel {
    */
   static getAcademicPlan(userId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT ap.*, c.course_code, c.course_name, c.credit_hours
       FROM academic_plans ap
       JOIN courses c ON ap.course_id = c.id
       WHERE ap.student_id = ?
       ORDER BY ap.planned_year, ap.planned_semester
-    `).all(userId);
+    `,
+      )
+      .all(userId);
   }
 
   /**
@@ -111,14 +119,18 @@ export class User extends BaseModel {
    */
   static getDegreeRequirements(userId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT dr.*, c.course_code, c.course_name
       FROM degree_requirements dr
       JOIN courses c ON dr.course_id = c.id
       WHERE dr.major = (SELECT declared_major FROM users WHERE id = ?)
         AND dr.catalog_year = (SELECT catalog_year FROM users WHERE id = ?)
         AND dr.is_active = 1
-    `).all(userId, userId);
+    `,
+      )
+      .all(userId, userId);
   }
 
   /**
@@ -128,7 +140,7 @@ export class User extends BaseModel {
    */
   static #sanitizeUser(user) {
     if (!user) return null;
-    const { password_hash, ...sanitized } = user;
+    const { password_hash: _, ...sanitized } = user;
     return sanitized;
   }
 
@@ -161,9 +173,14 @@ export class User extends BaseModel {
    * @returns {Object|null} Updated profile or null
    */
   static updateProfile(id, data) {
-    const allowedFields = ['name', 'declared_major', 'current_semester',
-                          'planned_graduation_semester', 'planned_graduation_year',
-                          'catalog_year'];
+    const allowedFields = [
+      "name",
+      "declared_major",
+      "current_semester",
+      "planned_graduation_semester",
+      "planned_graduation_year",
+      "catalog_year",
+    ];
     const filteredData = {};
 
     for (const field of allowedFields) {

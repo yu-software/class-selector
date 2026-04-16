@@ -3,11 +3,11 @@
  * Manages courses with prerequisites and semester availability
  */
 
-import { BaseModel } from './BaseModel.js';
+import { BaseModel } from "./BaseModel.js";
 
 export class Course extends BaseModel {
   static get tableName() {
-    return 'courses';
+    return "courses";
   }
 
   /**
@@ -20,7 +20,7 @@ export class Course extends BaseModel {
       course_code: data.courseCode,
       course_name: data.courseName,
       credit_hours: data.creditHours ?? 3,
-      description: data.description ?? null
+      description: data.description ?? null,
     });
   }
 
@@ -30,7 +30,7 @@ export class Course extends BaseModel {
    * @returns {Object|null} Course or null
    */
   static findByCode(code) {
-    return this.findOne('course_code = ?', [code]);
+    return this.findOne("course_code = ?", [code]);
   }
 
   /**
@@ -46,7 +46,9 @@ export class Course extends BaseModel {
       VALUES (?, ?)
     `);
     const result = stmt.run(courseId, prerequisiteId);
-    return db.prepare('SELECT * FROM course_prerequisites WHERE id = ?').get(result.lastInsertRowid);
+    return db
+      .prepare("SELECT * FROM course_prerequisites WHERE id = ?")
+      .get(result.lastInsertRowid);
   }
 
   /**
@@ -72,11 +74,15 @@ export class Course extends BaseModel {
    */
   static getPrerequisites(courseId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT c.* FROM courses c
       JOIN course_prerequisites cp ON c.id = cp.prerequisite_course_id
       WHERE cp.course_id = ?
-    `).all(courseId);
+    `,
+      )
+      .all(courseId);
   }
 
   /**
@@ -86,11 +92,15 @@ export class Course extends BaseModel {
    */
   static getDependentCourses(courseId) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT c.* FROM courses c
       JOIN course_prerequisites cp ON c.id = cp.course_id
       WHERE cp.prerequisite_course_id = ?
-    `).all(courseId);
+    `,
+      )
+      .all(courseId);
   }
 
   /**
@@ -106,17 +116,24 @@ export class Course extends BaseModel {
     const prerequisites = this.getPrerequisites(courseId);
 
     // Get completed courses for student
-    const completed = db.prepare(`
+    const completed = db
+      .prepare(
+        `
       SELECT course_id FROM course_history
       WHERE student_id = ? AND status = 'completed'
-    `).all(studentId).map(row => row.course_id);
+    `,
+      )
+      .all(studentId)
+      .map((row) => row.course_id);
 
     // Find missing prerequisites
-    const missing = prerequisites.filter(prereq => !completed.includes(prereq.id));
+    const missing = prerequisites.filter(
+      (prereq) => !completed.includes(prereq.id),
+    );
 
     return {
       hasAll: missing.length === 0,
-      missing: missing
+      missing: missing,
     };
   }
 
@@ -137,7 +154,9 @@ export class Course extends BaseModel {
     // SQLite requires 0/1 for boolean values
     const offeredValue = isOffered ? 1 : 0;
     const result = stmt.run(courseId, semester, offeredValue, offeredValue);
-    return db.prepare('SELECT * FROM course_availability WHERE id = ?').get(result.lastInsertRowid);
+    return db
+      .prepare("SELECT * FROM course_availability WHERE id = ?")
+      .get(result.lastInsertRowid);
   }
 
   /**
@@ -148,10 +167,14 @@ export class Course extends BaseModel {
    */
   static isOfferedInSemester(courseId, semester) {
     const db = this.db;
-    const result = db.prepare(`
+    const result = db
+      .prepare(
+        `
       SELECT is_offered FROM course_availability
       WHERE course_id = ? AND semester = ?
-    `).get(courseId, semester);
+    `,
+      )
+      .get(courseId, semester);
 
     return result ? result.is_offered === 1 : false;
   }
@@ -163,11 +186,15 @@ export class Course extends BaseModel {
    */
   static getCoursesBySemester(semester) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT c.* FROM courses c
       JOIN course_availability ca ON c.id = ca.course_id
       WHERE ca.semester = ? AND ca.is_offered = 1 AND c.is_active = 1
-    `).all(semester);
+    `,
+      )
+      .all(semester);
   }
 
   /**
@@ -177,11 +204,15 @@ export class Course extends BaseModel {
    */
   static getOfferedSemesters(courseId) {
     const db = this.db;
-    const results = db.prepare(`
+    const results = db
+      .prepare(
+        `
       SELECT semester FROM course_availability
       WHERE course_id = ? AND is_offered = 1
-    `).all(courseId);
-    return results.map(r => r.semester);
+    `,
+      )
+      .all(courseId);
+    return results.map((r) => r.semester);
   }
 
   /**
@@ -192,8 +223,8 @@ export class Course extends BaseModel {
   static search(query) {
     const searchTerm = `%${query}%`;
     return this.findAll(
-      '(course_code LIKE ? OR course_name LIKE ?) AND is_active = 1',
-      [searchTerm, searchTerm]
+      "(course_code LIKE ? OR course_name LIKE ?) AND is_active = 1",
+      [searchTerm, searchTerm],
     );
   }
 
@@ -210,7 +241,7 @@ export class Course extends BaseModel {
       ...course,
       prerequisites: this.getPrerequisites(id),
       offeredSemesters: this.getOfferedSemesters(id),
-      dependents: this.getDependentCourses(id)
+      dependents: this.getDependentCourses(id),
     };
   }
 }

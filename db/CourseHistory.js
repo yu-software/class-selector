@@ -3,11 +3,11 @@
  * Records of courses completed by students
  */
 
-import { BaseModel } from './BaseModel.js';
+import { BaseModel } from "./BaseModel.js";
 
 export class CourseHistory extends BaseModel {
   static get tableName() {
-    return 'course_history';
+    return "course_history";
   }
 
   /**
@@ -19,11 +19,11 @@ export class CourseHistory extends BaseModel {
     return this.insert({
       student_id: data.studentId,
       course_id: data.courseId,
-      status: 'completed',
+      status: "completed",
       grade: data.grade ?? null,
       semester_taken: data.semesterTaken,
       year_taken: data.yearTaken,
-      completed_at: new Date().toISOString()
+      completed_at: new Date().toISOString(),
     });
   }
 
@@ -36,9 +36,9 @@ export class CourseHistory extends BaseModel {
     return this.insert({
       student_id: data.studentId,
       course_id: data.courseId,
-      status: 'in_progress',
+      status: "in_progress",
       semester_taken: data.semesterTaken,
-      year_taken: data.yearTaken
+      year_taken: data.yearTaken,
     });
   }
 
@@ -51,19 +51,23 @@ export class CourseHistory extends BaseModel {
    */
   static updateCourseStatus(studentId, courseId, data) {
     // Find existing record
-    const existing = this.findOne('student_id = ? AND course_id = ?', [studentId, courseId]);
+    const existing = this.findOne("student_id = ? AND course_id = ?", [
+      studentId,
+      courseId,
+    ]);
 
     if (!existing) {
       return this.insert({
         student_id: studentId,
         course_id: courseId,
         ...data,
-        completed_at: data.status === 'completed' ? new Date().toISOString() : null
+        completed_at:
+          data.status === "completed" ? new Date().toISOString() : null,
       });
     }
 
     const updateData = { ...data };
-    if (data.status === 'completed' && !data.completed_at) {
+    if (data.status === "completed" && !data.completed_at) {
       updateData.completed_at = new Date().toISOString();
     }
 
@@ -93,7 +97,7 @@ export class CourseHistory extends BaseModel {
       params.push(status);
     }
 
-    query += ' ORDER BY ch.year_taken DESC, ch.semester_taken DESC';
+    query += " ORDER BY ch.year_taken DESC, ch.semester_taken DESC";
 
     return db.prepare(query).all(...params);
   }
@@ -104,7 +108,7 @@ export class CourseHistory extends BaseModel {
    * @returns {Array} Array of completed courses
    */
   static getCompletedCourses(studentId) {
-    return this.getStudentHistory(studentId, 'completed');
+    return this.getStudentHistory(studentId, "completed");
   }
 
   /**
@@ -113,7 +117,7 @@ export class CourseHistory extends BaseModel {
    * @returns {Array} Array of in-progress courses
    */
   static getInProgressCourses(studentId) {
-    return this.getStudentHistory(studentId, 'in_progress');
+    return this.getStudentHistory(studentId, "in_progress");
   }
 
   /**
@@ -124,8 +128,8 @@ export class CourseHistory extends BaseModel {
    */
   static hasCompleted(studentId, courseId) {
     return this.exists(
-      'student_id = ? AND course_id = ? AND status = \'completed\'',
-      [studentId, courseId]
+      "student_id = ? AND course_id = ? AND status = 'completed'",
+      [studentId, courseId],
     );
   }
 
@@ -136,12 +140,16 @@ export class CourseHistory extends BaseModel {
    */
   static getTotalCreditHours(studentId) {
     const db = this.db;
-    const result = db.prepare(`
+    const result = db
+      .prepare(
+        `
       SELECT SUM(c.credit_hours) as total
       FROM course_history ch
       JOIN courses c ON ch.course_id = c.id
       WHERE ch.student_id = ? AND ch.status = 'completed'
-    `).get(studentId);
+    `,
+      )
+      .get(studentId);
 
     return result?.total || 0;
   }
@@ -155,19 +163,30 @@ export class CourseHistory extends BaseModel {
     const db = this.db;
 
     const gradePoints = {
-      'A': 4.0, 'A-': 3.7,
-      'B+': 3.3, 'B': 3.0, 'B-': 2.7,
-      'C+': 2.3, 'C': 2.0, 'C-': 1.7,
-      'D+': 1.3, 'D': 1.0, 'D-': 0.7,
-      'F': 0.0
+      A: 4.0,
+      "A-": 3.7,
+      "B+": 3.3,
+      B: 3.0,
+      "B-": 2.7,
+      "C+": 2.3,
+      C: 2.0,
+      "C-": 1.7,
+      "D+": 1.3,
+      D: 1.0,
+      "D-": 0.7,
+      F: 0.0,
     };
 
-    const results = db.prepare(`
+    const results = db
+      .prepare(
+        `
       SELECT ch.grade, c.credit_hours
       FROM course_history ch
       JOIN courses c ON ch.course_id = c.id
       WHERE ch.student_id = ? AND ch.status = 'completed' AND ch.grade IS NOT NULL
-    `).all(studentId);
+    `,
+      )
+      .all(studentId);
 
     if (results.length === 0) return 0;
 
@@ -190,10 +209,13 @@ export class CourseHistory extends BaseModel {
    * @returns {Object|null} Updated record or null
    */
   static dropCourse(studentId, courseId) {
-    const record = this.findOne('student_id = ? AND course_id = ?', [studentId, courseId]);
+    const record = this.findOne("student_id = ? AND course_id = ?", [
+      studentId,
+      courseId,
+    ]);
     if (!record) return null;
 
-    return this.update(record.id, { status: 'dropped' });
+    return this.update(record.id, { status: "dropped" });
   }
 
   /**
@@ -210,7 +232,7 @@ export class CourseHistory extends BaseModel {
         acc[key] = {
           semester: record.semester_taken,
           year: record.year_taken,
-          courses: []
+          courses: [],
         };
       }
       acc[key].courses.push({
@@ -219,7 +241,7 @@ export class CourseHistory extends BaseModel {
         name: record.course_name,
         status: record.status,
         grade: record.grade,
-        creditHours: record.credit_hours
+        creditHours: record.credit_hours,
       });
       return acc;
     }, {});

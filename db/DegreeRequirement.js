@@ -3,11 +3,11 @@
  * Maps majors to required courses for graduation
  */
 
-import { BaseModel } from './BaseModel.js';
+import { BaseModel } from "./BaseModel.js";
 
 export class DegreeRequirement extends BaseModel {
   static get tableName() {
-    return 'degree_requirements';
+    return "degree_requirements";
   }
 
   /**
@@ -19,8 +19,8 @@ export class DegreeRequirement extends BaseModel {
     return this.insert({
       major: data.major,
       course_id: data.courseId,
-      requirement_type: data.requirementType ?? 'required',
-      catalog_year: data.catalogYear
+      requirement_type: data.requirementType ?? "required",
+      catalog_year: data.catalogYear,
     });
   }
 
@@ -41,7 +41,9 @@ export class DegreeRequirement extends BaseModel {
    */
   static getRequirementsForMajor(major, catalogYear) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT dr.*, c.course_code, c.course_name, c.credit_hours
       FROM degree_requirements dr
       JOIN courses c ON dr.course_id = c.id
@@ -49,7 +51,9 @@ export class DegreeRequirement extends BaseModel {
         AND dr.catalog_year = ?
         AND dr.is_active = 1
       ORDER BY dr.requirement_type, c.course_code
-    `).all(major, catalogYear);
+    `,
+      )
+      .all(major, catalogYear);
   }
 
   /**
@@ -59,7 +63,9 @@ export class DegreeRequirement extends BaseModel {
    */
   static getCurrentRequirements(major) {
     const db = this.db;
-    return db.prepare(`
+    return db
+      .prepare(
+        `
       SELECT dr.*, c.course_code, c.course_name, c.credit_hours
       FROM degree_requirements dr
       JOIN courses c ON dr.course_id = c.id
@@ -69,7 +75,9 @@ export class DegreeRequirement extends BaseModel {
         )
         AND dr.is_active = 1
       ORDER BY dr.requirement_type, c.course_code
-    `).all(major, major);
+    `,
+      )
+      .all(major, major);
   }
 
   /**
@@ -81,8 +89,8 @@ export class DegreeRequirement extends BaseModel {
    */
   static isRequired(major, courseId, catalogYear) {
     return this.exists(
-      'major = ? AND course_id = ? AND catalog_year = ? AND is_active = 1',
-      [major, courseId, catalogYear]
+      "major = ? AND course_id = ? AND catalog_year = ? AND is_active = 1",
+      [major, courseId, catalogYear],
     );
   }
 
@@ -93,12 +101,16 @@ export class DegreeRequirement extends BaseModel {
    */
   static getCatalogYears(major) {
     const db = this.db;
-    const results = db.prepare(`
+    const results = db
+      .prepare(
+        `
       SELECT DISTINCT catalog_year FROM degree_requirements
       WHERE major = ? AND is_active = 1
       ORDER BY catalog_year DESC
-    `).all(major);
-    return results.map(r => r.catalog_year);
+    `,
+      )
+      .all(major);
+    return results.map((r) => r.catalog_year);
   }
 
   /**
@@ -110,23 +122,26 @@ export class DegreeRequirement extends BaseModel {
   static getRequirementsByType(major, catalogYear) {
     const requirements = this.getRequirementsForMajor(major, catalogYear);
 
-    return requirements.reduce((acc, req) => {
-      const type = req.requirement_type;
-      if (!acc[type]) {
-        acc[type] = [];
-      }
-      acc[type].push({
-        id: req.course_id,
-        code: req.course_code,
-        name: req.course_name,
-        creditHours: req.credit_hours
-      });
-      return acc;
-    }, {
-      required: [],
-      core: [],
-      elective: []
-    });
+    return requirements.reduce(
+      (acc, req) => {
+        const type = req.requirement_type;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+        acc[type].push({
+          id: req.course_id,
+          code: req.course_code,
+          name: req.course_name,
+          creditHours: req.credit_hours,
+        });
+        return acc;
+      },
+      {
+        required: [],
+        core: [],
+        elective: [],
+      },
+    );
   }
 
   /**
@@ -145,8 +160,8 @@ export class DegreeRequirement extends BaseModel {
         const req = this.insert({
           major,
           course_id: course.courseId,
-          requirement_type: course.requirementType ?? 'required',
-          catalog_year: catalogYear
+          requirement_type: course.requirementType ?? "required",
+          catalog_year: catalogYear,
         });
         created.push(req);
       }
@@ -168,10 +183,10 @@ export class DegreeRequirement extends BaseModel {
     return this.bulkAddRequirements(
       major,
       toCatalogYear,
-      existing.map(req => ({
+      existing.map((req) => ({
         courseId: req.course_id,
-        requirementType: req.requirement_type
-      }))
+        requirementType: req.requirement_type,
+      })),
     );
   }
 
@@ -183,12 +198,16 @@ export class DegreeRequirement extends BaseModel {
    */
   static getCountByType(major, catalogYear) {
     const db = this.db;
-    const results = db.prepare(`
+    const results = db
+      .prepare(
+        `
       SELECT requirement_type, COUNT(*) as count
       FROM degree_requirements
       WHERE major = ? AND catalog_year = ? AND is_active = 1
       GROUP BY requirement_type
-    `).all(major, catalogYear);
+    `,
+      )
+      .all(major, catalogYear);
 
     return results.reduce((acc, row) => {
       acc[row.requirement_type] = row.count;
