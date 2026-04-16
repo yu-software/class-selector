@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "npm run lint && npm run build && cross-env MINIMAL_INIT=1 npm run db:init",
     "db:init": "node db/init-db.js",
-    "db:reset": "node -e \"if(process.env.ALLOW_DB_RESET==='1'){ import('./db/index.js').then(m => m.resetDatabase()) } else { console.error('Refusing to run db:reset. Set ALLOW_DB_RESET=1 to allow this operation.'); process.exit(1) }\"",
+    "db:reset": "node -e \"if(process.env.ALLOW_DB_RESET!=='1'){ console.error('Refusing to run db:reset. Set ALLOW_DB_RESET=1 to allow this operation.'); process.exit(1) } (async () => { const m = await import('./db/index.js'); try { await m.resetDatabase(); } finally { if (typeof m.closeDatabase === 'function') { m.closeDatabase(); } } })().catch(err => { console.error(err); process.exit(1); })\"",
     "db:migrate": "node db/migrations/run.js",
     "db:reset:dev": "cross-env ALLOW_DB_RESET=1 npm run db:reset",
     "format": "prettier --write .",

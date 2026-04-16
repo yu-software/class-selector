@@ -4,6 +4,7 @@
  * Based on York University 2023-2024 Academic Catalog
  */
 
+import { pathToFileURL } from "url";
 import { getDatabase, closeDatabase } from "../database.js";
 import { Course } from "../Course.js";
 import { DegreeRequirement } from "../DegreeRequirement.js";
@@ -304,6 +305,13 @@ const COURSES = [
     name: "General Science B",
     credits: 3,
     description: "Continuation of General Science A.",
+  },
+  {
+    code: "ENG273",
+    name: "Artistic Expression through Writing",
+    credits: 3,
+    description:
+      "Exploration of creative and artistic expression through various forms of writing.",
   },
 ];
 
@@ -630,7 +638,7 @@ export async function migrate() {
 }
 
 // Run migration if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   migrate()
     .then(() => {
       closeDatabase();

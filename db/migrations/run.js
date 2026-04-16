@@ -4,6 +4,7 @@
  * Executes all pending migrations in order
  */
 
+import { pathToFileURL } from "url";
 import { initializeDatabase, closeDatabase } from "../database.js";
 import { migrate as migrate001 } from "./001-catalog-seed.js";
 
@@ -31,7 +32,7 @@ async function runMigrations() {
 }
 
 // CLI execution
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   runMigrations()
     .then(() => {
       closeDatabase();

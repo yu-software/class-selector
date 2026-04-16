@@ -153,10 +153,15 @@ export class Course extends BaseModel {
     `);
     // SQLite requires 0/1 for boolean values
     const offeredValue = isOffered ? 1 : 0;
-    const result = stmt.run(courseId, semester, offeredValue, offeredValue);
+    stmt.run(courseId, semester, offeredValue, offeredValue);
     return db
-      .prepare("SELECT * FROM course_availability WHERE id = ?")
-      .get(result.lastInsertRowid);
+      .prepare(
+        `
+      SELECT * FROM course_availability
+      WHERE course_id = ? AND semester = ?
+    `,
+      )
+      .get(courseId, semester);
   }
 
   /**

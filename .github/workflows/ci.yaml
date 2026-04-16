@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
@@ -69,7 +72,7 @@ jobs:
         run: npm run build
 
   test:
-    name: Automated Tests
+    name: Lint, Build, and DB Init
     runs-on: ubuntu-latest
     needs: [build, lint, format]
     steps:
@@ -84,7 +87,7 @@ jobs:
         run: npm ci
       - name: Run migrations
         run: npm run db:migrate
-      - name: Run tests
+      - name: Run checks (lint, build, db:init)
         run: npm test
 
   database:

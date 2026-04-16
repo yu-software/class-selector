@@ -26,15 +26,15 @@ npm run format
 
 Formatting is enforced in CI. Pull requests will fail if code is not properly formatted.
 
-## Running Tests
+## Running Checks
 
-To run all automated tests:
+To run linting, build, and database initialization checks:
 
 ```
 npm test
 ```
 
-Tests are also run automatically in CI for every pull request and push to main/develop. Failing tests will block merging.
+This runs ESLint, the Vite build, and a minimal database initialization. Note: there is currently no automated test runner (e.g., Jest/Vitest) configured.
 
 ## Dangerous Scripts
 

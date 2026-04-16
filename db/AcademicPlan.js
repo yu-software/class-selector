@@ -146,28 +146,30 @@ export class AcademicPlan extends BaseModel {
   static getPlanBySemester(studentId) {
     const plans = this.getStudentPlan(studentId);
 
-    return plans.reduce((acc, plan) => {
-      const key = `${plan.planned_semester}_${plan.planned_year}`;
-      if (!acc[key]) {
-        acc[key] = {
-          semester: plan.planned_semester,
-          year: plan.planned_year,
-          courses: [],
-          totalCredits: 0,
-        };
-      }
-      acc[key].courses.push({
-        id: plan.course_id,
-        planId: plan.id,
-        code: plan.course_code,
-        name: plan.course_name,
-        creditHours: plan.credit_hours,
-        status: plan.status,
-        notes: plan.notes,
-      });
-      acc[key].totalCredits += plan.credit_hours;
-      return acc;
-    }, []);
+    return Object.values(
+      plans.reduce((acc, plan) => {
+        const key = `${plan.planned_semester}_${plan.planned_year}`;
+        if (!acc[key]) {
+          acc[key] = {
+            semester: plan.planned_semester,
+            year: plan.planned_year,
+            courses: [],
+            totalCredits: 0,
+          };
+        }
+        acc[key].courses.push({
+          id: plan.course_id,
+          planId: plan.id,
+          code: plan.course_code,
+          name: plan.course_name,
+          creditHours: plan.credit_hours,
+          status: plan.status,
+          notes: plan.notes,
+        });
+        acc[key].totalCredits += plan.credit_hours;
+        return acc;
+      }, {}),
+    );
   }
 
   /**
