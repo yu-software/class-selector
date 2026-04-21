@@ -7,7 +7,13 @@ export default async function authRoutes(fastify) {
   fastify.post("/register", async (request, reply) => {
     try {
       const { email, password, name, catalog_year } = request.body;
-      if (!email || !password || !name || catalog_year === undefined || catalog_year === null) {
+      if (
+        !email ||
+        !password ||
+        !name ||
+        catalog_year === undefined ||
+        catalog_year === null
+      ) {
         return reply.code(400).send({ message: "Missing required fields" });
       }
 
@@ -21,7 +27,12 @@ export default async function authRoutes(fastify) {
         return reply.code(409).send({ message: "Email already in use" });
       }
 
-      const user = User.create({ email, password, name, catalog_year: parsedCatalogYear });
+      const user = User.create({
+        email,
+        password,
+        name,
+        catalog_year: parsedCatalogYear,
+      });
       return reply.code(201).send(user);
     } catch (err) {
       fastify.log.error({ err }, "Registration error");

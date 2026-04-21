@@ -45,6 +45,6 @@ export default async function usersRoutes(fastify) {
         return reply.code(404).send({ message: "User not found" });
       }
       return updatedUser;
-    }
+    },
   );
 }

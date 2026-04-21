@@ -8,4 +8,3 @@ export default fp(async function authPlugin(fastify) {
     secret: fastify.config.jwtSecret,
   });
 });
-
