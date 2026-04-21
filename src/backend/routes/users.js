@@ -22,15 +22,29 @@ export default async function usersRoutes(fastify) {
   });
 
   // Update user profile
-  fastify.put("/profile", async (request, reply) => {
-    const { name, declared_major } = request.body;
-    const updatedUser = User.updateProfile(request.user.id, {
-      name,
-      declared_major,
-    });
-    if (!updatedUser) {
-      return reply.code(404).send({ message: "User not found" });
+  fastify.put(
+    "/profile",
+    {
+      schema: {
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            declared_major: { type: "string" },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const { name, declared_major } = request.body;
+      const updatedUser = User.updateProfile(request.user.id, {
+        name,
+        declared_major,
+      });
+      if (!updatedUser) {
+        return reply.code(404).send({ message: "User not found" });
+      }
+      return updatedUser;
     }
-    return updatedUser;
-  });
+  );
 }

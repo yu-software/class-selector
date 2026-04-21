@@ -28,5 +28,5 @@ fastify.listen({ port: config.port }, (err) => {
     fastify.log.error(err);
     process.exit(1);
   }
-  console.log(`Server is running on port ${config.port}`);
+  fastify.log.info(`Server is running on port ${config.port}`);
 });
