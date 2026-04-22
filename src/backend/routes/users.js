@@ -44,7 +44,8 @@ export default async function usersRoutes(fastify) {
       if (!updatedUser) {
         return reply.code(404).send({ message: "User not found" });
       }
-      return updatedUser;
+      // Sanitize user to avoid exposing password_hash
+      return User.getProfile(request.user.id);
     },
   );
 }

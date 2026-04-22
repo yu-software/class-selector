@@ -23,12 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables
+.env
+
 # Ignore catalog PDF
 2023-2024-catalog.pdf
 
 # Ignore migration agent files
 .agent.md
 .agent*
+CLAUDE.md
  
 # Ignore catalog PDF in db/ if stored there
 db/2023-2024-catalog.pdf
