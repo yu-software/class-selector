@@ -46,7 +46,9 @@ async function doLogin(e) {
 
     // try to fetch debug me
     try {
-      const meRes = await fetch("/debug/me", { headers: { Authorization: `Bearer ${data.token}` } });
+      const meRes = await fetch("/debug/me", {
+        headers: { Authorization: `Bearer ${data.token}` },
+      });
       if (meRes.ok) {
         const me = await meRes.json();
         showLogged(me.user || me);
@@ -75,7 +77,9 @@ const token = localStorage.getItem("token");
 if (token) {
   (async () => {
     try {
-      const res = await fetch("/debug/me", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch("/debug/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.ok) {
         const me = await res.json();
         showLogged(me.user || me);

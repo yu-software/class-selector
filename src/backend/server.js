@@ -22,10 +22,10 @@ fastify.decorate("config", config);
 fastify.register(dbPlugin);
 // Register CORS to allow the frontend to send the Authorization header
 // Note: run `npm install @fastify/cors` before starting the server
-fastify.register(import('@fastify/cors'), {
-  origin: ['http://localhost:5174'],
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+fastify.register(import("@fastify/cors"), {
+  origin: ["http://localhost:5174"],
+  allowedHeaders: ["Authorization", "Content-Type"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
 });
 

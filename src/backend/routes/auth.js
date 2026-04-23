@@ -73,17 +73,18 @@ export default async function authRoutes(fastify) {
 
       // Validar campos requeridos
       if (!student_id || !name || semester === undefined) {
-        return reply
-          .code(400)
-          .send({
-            message:
-              "Missing required fields: student_id, name, semester",
-          });
+        return reply.code(400).send({
+          message: "Missing required fields: student_id, name, semester",
+        });
       }
 
       // Validar que semester sea un número entero válido
       const parsedSemester = Number.parseInt(semester, 10);
-      if (!Number.isInteger(parsedSemester) || parsedSemester < 1 || parsedSemester > 8) {
+      if (
+        !Number.isInteger(parsedSemester) ||
+        parsedSemester < 1 ||
+        parsedSemester > 8
+      ) {
         return reply.code(400).send({
           message: "Invalid semester. Must be an integer between 1 and 8",
         });

@@ -13,20 +13,30 @@
         <div class="login-root">
           <form id="login-form" class="login-form">
             <h2>Iniciar sesión</h2>
-            <input id="email" type="email" placeholder="Correo electrónico" required />
-            <input id="password" type="password" placeholder="Contraseña" required />
+            <input
+              id="email"
+              type="email"
+              placeholder="Correo electrónico"
+              required
+            />
+            <input
+              id="password"
+              type="password"
+              placeholder="Contraseña"
+              required
+            />
             <button id="submit">Entrar</button>
-            <p id="login-error" class="login-error" style="display:none"></p>
+            <p id="login-error" class="login-error" style="display: none"></p>
           </form>
-          <div id="logged" class="login-ok" style="display:none">
+          <div id="logged" class="login-ok" style="display: none">
             <p>Autenticado correctamente.</p>
-            <div id="user-info" style="margin-bottom:12px;color:#ddd"></div>
+            <div id="user-info" style="margin-bottom: 12px; color: #ddd"></div>
             <button id="logout">Cerrar sesión</button>
           </div>
         </div>
       </main>
     </div>
-    <link rel="stylesheet" href="./App.css">
+    <link rel="stylesheet" href="./App.css" />
     <script type="module" src="./main.js"></script>
   </body>
 </html>
