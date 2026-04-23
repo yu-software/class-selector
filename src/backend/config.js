@@ -5,7 +5,7 @@ import process from "process";
 dotenv.config();
 
 const rawPort = process.env.PORT;
-const parsedPort = rawPort === undefined ? 3000 : Number.parseInt(rawPort, 10);
+const parsedPort = rawPort === undefined ? 3005 : Number.parseInt(rawPort, 10);
 
 if (!Number.isInteger(parsedPort) || parsedPort < 0 || parsedPort > 65535) {
   throw new Error("PORT must be a valid integer between 0 and 65535");

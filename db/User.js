@@ -191,4 +191,88 @@ export class User extends BaseModel {
 
     return this.update(id, filteredData);
   }
+
+  /**
+   * Get suggested courses for the next semester
+   * Based on completed prerequisites and course availability
+   * @param {number} userId - User ID
+   * @returns {Array} Array of suggested courses
+   */
+  static getSuggestedNextSemesterCourses(userId) {
+    const db = this.db;
+    const user = this.getProfile(userId);
+
+    if (!user) return [];
+
+    // Get completed courses
+    const completed = this.getCompletedCourses(userId);
+    const completedIds = completed.map((c) => c.id);
+
+    // Get degree requirements for user's major
+    const requirements = this.getDegreeRequirements(userId);
+
+    // Filter out completed courses
+    const remaining = requirements.filter(
+      (req) => !completedIds.includes(req.course_id),
+    );
+
+    // Find courses with all prerequisites completed
+    const suggested = [];
+
+    for (const course of remaining) {
+      // Get prerequisites
+      const prerequisites = db
+        .prepare(
+          `
+        SELECT prerequisite_course_id FROM course_prerequisites
+        WHERE course_id = ?
+      `,
+        )
+        .all(course.course_id);
+
+      // Check if all prerequisites are completed
+      const allCompleted = prerequisites.every((prereq) =>
+        completedIds.includes(prereq.prerequisite_course_id),
+      );
+
+      if (!allCompleted) continue;
+
+      // Check if course is offered in next semester (simplified: check any semester)
+      const offered = db
+        .prepare(
+          `
+        SELECT semester FROM course_availability
+        WHERE course_id = ? AND is_offered = 1
+        LIMIT 1
+      `,
+        )
+        .get(course.course_id);
+
+      if (!offered) continue;
+
+      // Check if not already in progress
+      const inProgress = db
+        .prepare(
+          `
+        SELECT id FROM course_history
+        WHERE student_id = ? AND course_id = ? AND status = 'in_progress'
+      `,
+        )
+        .get(userId, course.course_id);
+
+      if (inProgress) continue;
+
+      suggested.push({
+        id: course.course_id,
+        codigo: course.course_code,
+        nombre: course.course_name,
+        creditos: course.credit_hours,
+        tipo: course.requirement_type,
+        semestre_disponible: offered.semester,
+      });
+    }
+
+    // Limit to 6 courses max
+    return suggested.slice(0, 6);
+  }
 }
