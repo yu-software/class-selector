@@ -120,7 +120,7 @@ describe("Users Table - CRUD", () => {
     const result = db
       .prepare(
         `INSERT INTO users (email, password_hash, name, catalog_year)
-         VALUES (?, ?, ?, ?)`
+         VALUES (?, ?, ?, ?)`,
       )
       .run("test@york.edu", "hashed_pw", "Test User", 2024);
     assert.ok(result.lastInsertRowid > 0, "Should return a valid row ID");
@@ -130,7 +130,7 @@ describe("Users Table - CRUD", () => {
     const db = getDatabase();
     db.prepare(
       `INSERT INTO users (email, password_hash, name, catalog_year)
-       VALUES (?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?)`,
     ).run("juan@york.edu", "hashed_pw", "Juan Pinzon", 2024);
 
     const user = db
@@ -145,13 +145,13 @@ describe("Users Table - CRUD", () => {
     const db = getDatabase();
     db.prepare(
       `INSERT INTO users (email, password_hash, name, catalog_year)
-       VALUES (?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?)`,
     ).run("duplicate@york.edu", "hashed_pw", "User One", 2024);
 
     assert.throws(() => {
       db.prepare(
         `INSERT INTO users (email, password_hash, name, catalog_year)
-         VALUES (?, ?, ?, ?)`
+         VALUES (?, ?, ?, ?)`,
       ).run("duplicate@york.edu", "hashed_pw2", "User Two", 2024);
     }, "Should throw on duplicate email");
   });
@@ -160,7 +160,7 @@ describe("Users Table - CRUD", () => {
     const db = getDatabase();
     db.prepare(
       `INSERT INTO users (email, password_hash, name, catalog_year)
-       VALUES (?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?)`,
     ).run("delete@york.edu", "hashed_pw", "To Delete", 2024);
 
     db.prepare("DELETE FROM users WHERE email = ?").run("delete@york.edu");
