@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "npm run lint && npm run build && cross-env MINIMAL_INIT=1 npm run db:init",
+    "test": "vitest run",
+    "check": "npm run lint && npm run build && cross-env MINIMAL_INIT=1 npm run db:init",
     "db:init": "node db/init-db.js",
     "db:reset": "node -e \"if(process.env.ALLOW_DB_RESET!=='1'){ console.error('Refusing to run db:reset. Set ALLOW_DB_RESET=1 to allow this operation.'); process.exit(1) } (async () => { const m = await import('./db/index.js'); try { await m.resetDatabase(); } finally { if (typeof m.closeDatabase === 'function') { m.closeDatabase(); } } })().catch(err => { console.error(err); process.exit(1); })\"",
     "db:migrate": "node db/migrations/run.js",
@@ -39,6 +40,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "prettier": "^3.2.5",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.1.11"
   }
 }
