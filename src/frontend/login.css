@@ -53,19 +53,3 @@
 .login-button:hover {
   background-color: #0056b3;
 }
-
-.login-form p {
-  margin-top: 1rem;
-  text-align: center;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.login-form a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.login-form a:hover {
-  text-decoration: underline;
-}

@@ -72,7 +72,7 @@ jobs:
         run: npm run build
 
   test:
-    name: DB Init and Tests
+    name: Lint, Build, and DB Init
     runs-on: ubuntu-latest
     needs: [build, lint, format]
     steps:
@@ -85,10 +85,7 @@ jobs:
           cache: "npm"
       - name: Install dependencies
         run: npm ci
-
-      - name: Init DB
-        run: npm run db:init
-      - name: Run tests
+      - name: Run checks (lint, build, db:init)
         run: npm test
 
   database:
