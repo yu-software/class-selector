@@ -5,10 +5,31 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>class-selector-frontend</title>
-    <script type="module" src="./login-main.jsx"></script>
-    <link rel="stylesheet" href="./login.css" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="app-root">
+        <h1>Class Selector — Login</h1>
+        <div class="login-root">
+          <div class="login-form">
+            <h2>Iniciar sesión</h2>
+            <input
+              id="username"
+              type="text"
+              placeholder="Usuario"
+              required
+            />
+            <input
+              id="password"
+              type="password"
+              placeholder="Contraseña"
+              required
+            />
+            <a href="./home.html" class="login-button">Entrar</a>
+          </div>
+        </div>
+      </main>
+    </div>
+    <link rel="stylesheet" href="./login.css" />
   </body>
 </html>

@@ -1,94 +1,80 @@
-# Class Selector
+# class-selector
 
-Academic progress tracker for university students. Students log in to see their completed courses, in-progress courses, remaining degree requirements, and a semester-by-semester academic plan.
+## Database Migration
 
-## Tech Stack
-
-- **Frontend**: React 19 + Vite (multi-page: login, signup, home)
-- **Backend**: Fastify with JWT authentication
-- **Database**: SQLite via better-sqlite3
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-
-### Setup
-
-```bash
-git clone git@github.com:AdayGuedes/class-selector.git
-cd class-selector
-npm install
-```
-
-Create a `.env` file in the project root:
+To run all database migrations, use:
 
 ```
-PORT=3005
-JWT_SECRET=your-secret-key-here
+npm run db:migrate
 ```
 
-Initialize the database with sample data:
+This will execute all migration scripts in `db/migrations/` (via `run.js`). Use this command whenever you make changes to the database schema or need to apply new migrations.
 
-```bash
-npm run db:init
-```
+## Code Formatting
 
-This creates a test user: `student@example.com` / `password123`
-
-### Running
-
-Start both servers in separate terminals:
-
-```bash
-npm run backend:dev    # API server on http://localhost:3005
-npm run dev            # Vite dev server on http://localhost:5174
-```
-
-Open http://localhost:5174/login.html in your browser.
-
-## Project Structure
+To check code formatting using Prettier:
 
 ```
-src/
-├── backend/
-│   ├── server.js          # Fastify app entry point
-│   ├── config.js          # Environment variables
-│   ├── plugins/           # JWT and database plugins
-│   └── routes/            # API routes (auth, cursos, users)
-├── frontend/
-│   ├── login.html         # Login page entry
-│   ├── LoginPage.jsx      # Login form component
-│   ├── home.html          # Dashboard entry
-│   ├── HomePage.jsx       # Dashboard component
-│   ├── signup/            # Registration page
-│   └── home/              # Dashboard styles
-db/
-├── database.js            # SQLite connection and schema
-├── init-db.js             # Database seeding script
-├── migrations/            # Schema migrations
-└── *.js                   # Data models (User, Course, etc.)
+npm run format:check
 ```
 
-## API Endpoints
+To automatically fix formatting issues:
 
-| Method | Endpoint                | Auth | Description            |
-| ------ | ----------------------- | ---- | ---------------------- |
-| POST   | `/api/auth/login`       | No   | Returns JWT token      |
-| POST   | `/api/auth/register`    | No   | Creates new user       |
-| GET    | `/api/cursos/estado`    | JWT  | Full academic status   |
-| GET    | `/api/cursos/tomados`   | JWT  | Completed courses      |
-| GET    | `/api/cursos/faltantes` | JWT  | Remaining requirements |
-| GET    | `/api/cursos/plan`      | JWT  | Academic plan          |
+```
+npm run format
+```
 
-## Scripts
+Formatting is enforced in CI. Pull requests will fail if code is not properly formatted.
 
-| Command               | Description                    |
-| --------------------- | ------------------------------ |
-| `npm run dev`         | Start Vite dev server          |
-| `npm run backend:dev` | Start Fastify backend          |
-| `npm run db:init`     | Initialize DB with sample data |
-| `npm run db:migrate`  | Run database migrations        |
-| `npm run format`      | Format code with Prettier      |
-| `npm test`            | Lint + build + DB check        |
+## Running Checks
+
+To run linting, build, and database initialization checks:
+
+```
+npm test
+```
+
+This runs ESLint, the Vite build, and a minimal database initialization. Note: there is currently no automated test runner (e.g., Jest/Vitest) configured.
+
+## Dangerous Scripts
+
+The project includes a `db:reset` script that will reset or erase the database. For security, this script is restricted and will only run when the environment variable `ALLOW_DB_RESET` is explicitly set to `1`.
+
+To run a reset locally (explicit consent required):
+
+```
+ALLOW_DB_RESET=1 npm run db:reset
+```
+
+Do NOT set this environment variable in CI or production environments. Use this only for local development and testing.
+
+## Setup
+
+1.  Install Node.js
+2.  Clone the repository
+3.  Install npm (npm install)
+4.  npm run dev to run the project in local browser
+
+## Windows note
+
+If you or your teammates use Windows, install `cross-env` (already included in devDependencies) so environment variables work the same across platforms. Example commands:
+
+```
+npx cross-env MINIMAL_INIT=1 npm run db:init
+npx cross-env ALLOW_DB_RESET=1 npm run db:reset
+```
+
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.. Currently, two official plugins are availabl..
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
